@@ -62,10 +62,11 @@ else
 fi
 
 # ── install ───────────────────────────────────────────────────────────────────
-BIN_SRC="${TMP}/${BINARY}"
-[ "$OS" = "windows" ] && BIN_SRC="${TMP}/${BINARY}.exe"
+BIN_NAME="$BINARY"
+[ "$OS" = "windows" ] && BIN_NAME="${BINARY}.exe"
+BIN_SRC=$(find "$TMP" -maxdepth 2 -name "$BIN_NAME" -type f | head -1)
 
-if [ ! -f "$BIN_SRC" ]; then
+if [ -z "$BIN_SRC" ]; then
   echo "Binary not found in archive" >&2; exit 1
 fi
 
