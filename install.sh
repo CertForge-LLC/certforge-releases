@@ -34,9 +34,15 @@ if [ "$VERSION" = "latest" ]; then
     | grep '"tag_name"' \
     | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
   if [ -z "$VERSION" ]; then
+    VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
+      | grep '"tag_name"' | head -1 \
+      | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+  fi
+  if [ -z "$VERSION" ]; then
     echo "Could not determine latest version. Specify a version: sh install.sh v1.0.0" >&2
     exit 1
   fi
+  echo "Latest version: $VERSION"
 fi
 
 VER_NUM="${VERSION#v}"
