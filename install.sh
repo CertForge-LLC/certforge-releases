@@ -85,12 +85,30 @@ else
   sudo chmod +x "${INSTALL_DIR}/${BINARY}"
 fi
 
+# ── install config (first-time only) ─────────────────────────────────────────
+CONFIG_DIR="/etc/certforge"
+CONFIG_FILE="${CONFIG_DIR}/trust.yaml"
+EXAMPLE_SRC=$(find "$TMP" -maxdepth 2 -name "trust.example.yaml" | head -1)
+
+if [ -n "$EXAMPLE_SRC" ] && [ ! -f "$CONFIG_FILE" ]; then
+  if [ -w "/etc" ]; then
+    mkdir -p "$CONFIG_DIR"
+    sed 's|base_path: ./data|base_path: /var/lib/certforge|' "$EXAMPLE_SRC" > "$CONFIG_FILE"
+    mkdir -p /var/lib/certforge
+  else
+    sudo mkdir -p "$CONFIG_DIR"
+    sudo sh -c "sed 's|base_path: ./data|base_path: /var/lib/certforge|' \"$EXAMPLE_SRC\" > \"$CONFIG_FILE\""
+    sudo mkdir -p /var/lib/certforge
+  fi
+  echo "Config installed to ${CONFIG_FILE}"
+fi
+
 echo ""
 echo "CertForge ${VERSION} installed to ${INSTALL_DIR}/${BINARY}"
 echo ""
 echo "Next steps:"
-echo "  1. Copy config/trust.example.yaml to config/trust.yaml and edit it"
+echo "  1. Edit ${CONFIG_FILE} to configure your instance"
 echo "  2. Run: certforge"
-echo "  3. Open https://localhost:8080 in your browser"
+echo "  3. Open http://localhost:8080 in your browser"
 echo ""
 echo "Documentation: https://docs.certforge.xyz"
