@@ -91,14 +91,20 @@ CONFIG_FILE="${CONFIG_DIR}/trust.yaml"
 EXAMPLE_SRC=$(find "$TMP" -maxdepth 2 -name "trust.example.yaml" | head -1)
 
 if [ -n "$EXAMPLE_SRC" ] && [ ! -f "$CONFIG_FILE" ]; then
+  CURRENT_USER=$(id -un)
   if [ -w "/etc" ]; then
     mkdir -p "$CONFIG_DIR"
     sed 's|base_path: ./data|base_path: /var/lib/certforge|' "$EXAMPLE_SRC" > "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
     mkdir -p /var/lib/certforge
+    chown "$CURRENT_USER" /var/lib/certforge
   else
     sudo mkdir -p "$CONFIG_DIR"
     sudo sh -c "sed 's|base_path: ./data|base_path: /var/lib/certforge|' \"$EXAMPLE_SRC\" > \"$CONFIG_FILE\""
+    sudo chown "$CURRENT_USER" "$CONFIG_FILE"
+    sudo chmod 600 "$CONFIG_FILE"
     sudo mkdir -p /var/lib/certforge
+    sudo chown "$CURRENT_USER" /var/lib/certforge
   fi
   echo "Config installed to ${CONFIG_FILE}"
 fi
